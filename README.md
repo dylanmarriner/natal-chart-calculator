@@ -1,31 +1,67 @@
-# Enhanced Natal Chart Calculator
+# 🌟 Enhanced Natal Chart Calculator
 
-A comprehensive astrological natal chart calculator with advanced features including planetary positions, multiple house systems, aspect pattern detection, and batch processing capabilities.
+A professional natal chart calculator with **both command-line and desktop GUI interfaces**, featuring advanced astrological calculations, multiple house systems, and synastry compatibility analysis.
 
-## Features
+## ✨ Features
 
-### Core Calculations
-- **Accurate Planetary Positions**: Sun, Moon, Mercury, Venus, Mars, Jupiter, Saturn, Uranus, Neptune, Pluto
-- **Retrograde Detection**: Proper calculation of planetary retrograde motion
-- **Additional Bodies**: North/South Nodes, Chiron (with ephemeris files), Part of Fortune
-- **House Systems**: Placidus, Whole Sign, Equal, Koch, Campanus
+- **🖥️ Desktop GUI**: Standalone application with Dylan's custom sci-fi theme
+- **💕 Compatibility Calculator**: Synastry analysis between two birth charts
+- **🪐 Complete Planetary Calculations**: Sun, Moon, planets, North/South Nodes, Chiron, Part of Fortune
+- **🏠 Multiple House Systems**: Placidus, Whole Sign, Equal, Koch, Campanus
+- **🔮 Advanced Pattern Detection**: T-squares, Grand Trines, Yods, Stelliums
+- **⚡ Interactive Mode**: User-friendly CLI prompts
+- **📊 Multiple Output Formats**: JSON, CSV, formatted text
+- **🎯 Batch Processing**: Handle multiple charts from CSV files
+- **🎨 Sci-fi Theme**: Stunning holographic UI in desktop version
 
-### Advanced Analysis
-- **Aspect Detection**: All major aspects with configurable orbs
-- **Pattern Recognition**: T-squares, Grand Trines, Grand Crosses, Yods, Stelliums
-- **Aspect Strength Scoring**: Based on orb tightness and planetary importance
+## 🚀 Quick Start
 
-### User Interface
-- **CLI Interface**: Full command-line support with argparse
-- **Batch Processing**: Process multiple charts from CSV files
-- **Multiple Output Formats**: JSON, CSV, formatted text
-- **Export Options**: PDF/SVG chart wheel (placeholder for future implementation)
+### Desktop GUI (Recommended)
+```bash
+# Clone and run the launcher
+git clone https://github.com/dylanmarriner/natal-chart-calculator.git
+cd natal-chart-calculator
+./run_gui.sh          # Linux/macOS
+# or
+run_gui.bat           # Windows
+```
+
+### Command Line
+```bash
+# Interactive mode
+python3 natal_chart_enhanced.py --interactive
+
+# Direct calculation
+python3 natal_chart_enhanced.py \
+  --date 1998-03-03 \
+  --time 14:10:00 \
+  --tz Pacific/Auckland \
+  --lat -37.146 \
+  --lon 174.91
+```
+
+## 📱 Interface Options
+
+### 🖥️ Desktop GUI
+- **Modern Interface**: CustomTkinter with Dylan's sci-fi theme
+- **Tabbed Navigation**: Single charts and compatibility analysis
+- **Real-time Calculations**: Instant results with visual feedback
+- **Export Options**: Save charts as JSON, CSV, or text
+- **Cross-platform**: Windows, macOS, Linux support
+
+**📖 [Desktop GUI Installation Guide →](DESKTOP_GUI.md)**
+
+### 💻 Command Line
+- **Interactive Mode**: Guided input with validation
+- **Batch Processing**: Handle multiple charts efficiently
+- **Automation Friendly**: Perfect for scripting and workflows
+- **Lightweight**: No GUI dependencies required
 
 ## Installation
 
 ### Dependencies
 ```bash
-pip install skyfield pytz swisseph
+pip install skyfield pytz swisseph customtkinter pandas
 ```
 
 ### ⚠️ Important: Swiss Ephemeris Setup
@@ -48,31 +84,6 @@ Without these files, you'll see:
 ```
 
 **All other features work without this dependency.**
-
-## Usage
-
-### Single Chart Calculation
-```bash
-python3 natal_chart_enhanced.py \
-  --date 1998-03-03 \
-  --time 14:10:00 \
-  --tz Pacific/Auckland \
-  --lat -37.146 \
-  --lon 174.91 \
-  --name "Person Name"
-```
-
-### Different House Systems
-```bash
-# Whole Sign houses
-python3 natal_chart_enhanced.py --date 1998-03-03 --time 14:10:00 --tz Pacific/Auckland --lat -37.146 --lon 174.91 --house-system W
-
-# Equal houses  
-python3 natal_chart_enhanced.py --date 1998-03-03 --time 14:10:00 --tz Pacific/Auckland --lat -37.146 --lon 174.91 --house-system A
-
-# Koch houses
-python3 natal_chart_enhanced.py --date 1998-03-03 --time 14:10:00 --tz Pacific/Auckland --lat -37.146 --lon 174.91 --house-system K
-```
 
 ### Batch Processing
 Create a CSV file with birth data:

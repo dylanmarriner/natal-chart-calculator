@@ -24,6 +24,7 @@ wheels/
 venv/
 env/
 ENV/
+gui_env/
 
 # IDE
 .vscode/
