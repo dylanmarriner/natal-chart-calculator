@@ -20,6 +20,7 @@ from typing import Dict, Any, Optional
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from natal_chart_enhanced import calculate_complete_chart
+from astrology_readings import AstrologyReadings
 from cli import save_chart_json, save_chart_csv, save_chart_text
 from theme import DylanCustomTheme
 
@@ -226,6 +227,7 @@ class NatalChartGUI:
         # Configure tabs
         self.create_natal_chart_tab()
         self.create_compatibility_tab()
+        self.create_readings_tab()
         self.create_about_tab()
     
     def create_natal_chart_tab(self):
@@ -449,6 +451,135 @@ class NatalChartGUI:
         entry = ctk.CTkEntry(frame, textvariable=variable, width=200)
         entry.pack(side="left", padx=5)
     
+    def create_readings_tab(self):
+        """Create the astrology readings and daily horoscopes tab"""
+        tab = self.tabview.add("🔮 Astrology Readings")
+        
+        # Create main container for this tab
+        tab_frame = ctk.CTkFrame(tab)
+        tab_frame.pack(fill="both", expand=True, padx=10, pady=10)
+        
+        # Create input section
+        input_frame = ctk.CTkFrame(tab_frame)
+        input_frame.pack(fill="x", padx=10, pady=10)
+        
+        # Title for input section
+        input_title = ctk.CTkLabel(
+            input_frame,
+            text="🔮 Astrology Readings Configuration",
+            font=ctk.CTkFont(size=18, weight="bold")
+        )
+        input_title.pack(pady=10)
+        
+        # Birth data section
+        birth_frame = ctk.CTkFrame(input_frame)
+        birth_frame.pack(fill="x", padx=20, pady=10)
+        
+        birth_title = ctk.CTkLabel(
+            birth_frame,
+            text="👤 Birth Information (for personalized readings)",
+            font=ctk.CTkFont(size=14, weight="bold")
+        )
+        birth_title.pack(pady=5)
+        
+        # Birth data inputs
+        self.reading_name = ctk.StringVar(value="Your Name")
+        self.reading_date = ctk.StringVar(value="1998-03-03")
+        self.reading_time = ctk.StringVar(value="14:10:00")
+        self.reading_lat = ctk.StringVar(value="-37.146")
+        self.reading_lon = ctk.StringVar(value="174.91")
+        self.reading_tz = ctk.StringVar(value="Pacific/Auckland")
+        
+        self.create_person_inputs(birth_frame, self.reading_name, self.reading_date, self.reading_time,
+                                  self.reading_lat, self.reading_lon, self.reading_tz)
+        
+        # Reading options section
+        options_frame = ctk.CTkFrame(input_frame)
+        options_frame.pack(fill="x", padx=20, pady=10)
+        
+        options_title = ctk.CTkLabel(
+            options_frame,
+            text="📅 Reading Options",
+            font=ctk.CTkFont(size=14, weight="bold")
+        )
+        options_title.pack(pady=5)
+        
+        # Target date selection
+        date_frame = ctk.CTkFrame(options_frame)
+        date_frame.pack(fill="x", pady=5)
+        
+        ctk.CTkLabel(date_frame, text="Target Date:", width=150).pack(side="left")
+        self.target_date = ctk.StringVar(value=datetime.now().strftime("%Y-%m-%d"))
+        target_date_entry = ctk.CTkEntry(date_frame, textvariable=self.target_date, width=200)
+        target_date_entry.pack(side="left", padx=5)
+        
+        ctk.CTkButton(
+            date_frame,
+            text="Today",
+            command=lambda: self.target_date.set(datetime.now().strftime("%Y-%m-%d")),
+            width=80
+        ).pack(side="left", padx=5)
+        
+        # Reading type selection
+        reading_frame = ctk.CTkFrame(options_frame)
+        reading_frame.pack(fill="x", pady=5)
+        
+        ctk.CTkLabel(reading_frame, text="Reading Type:", width=150).pack(side="left")
+        self.reading_type = ctk.StringVar(value="comprehensive")
+        reading_menu = ctk.CTkOptionMenu(
+            reading_frame,
+            variable=self.reading_type,
+            values=["comprehensive", "transits_only", "horoscope_only"],
+            width=200
+        )
+        reading_menu.pack(side="left", padx=5)
+        
+        # Calculate button
+        button_frame = ctk.CTkFrame(input_frame)
+        button_frame.pack(fill="x", padx=20, pady=10)
+        
+        calculate_btn = ctk.CTkButton(
+            button_frame,
+            text="🔮 Generate Astrology Reading",
+            command=self.generate_reading,
+            height=40,
+            font=ctk.CTkFont(size=16, weight="bold")
+        )
+        calculate_btn.pack(pady=10)
+        
+        # Results section
+        results_frame = ctk.CTkFrame(tab_frame)
+        results_frame.pack(fill="both", expand=True, padx=10, pady=10)
+        
+        results_title = ctk.CTkLabel(
+            results_frame,
+            text="📖 Astrology Reading Results",
+            font=ctk.CTkFont(size=18, weight="bold")
+        )
+        results_title.pack(pady=10)
+        
+        # Create scrollable results area
+        self.readings_text = ctk.CTkTextbox(results_frame, height=300)
+        self.readings_text.pack(fill="both", expand=True, padx=20, pady=10)
+        
+        # Export buttons
+        export_frame = ctk.CTkFrame(results_frame)
+        export_frame.pack(fill="x", padx=20, pady=10)
+        
+        ctk.CTkButton(
+            export_frame,
+            text="💾 Save Reading",
+            command=self.save_reading,
+            width=120
+        ).pack(side="left", padx=5)
+        
+        ctk.CTkButton(
+            export_frame,
+            text="🔄 Clear Results",
+            command=self.clear_readings,
+            width=120
+        ).pack(side="left", padx=5)
+
     def create_about_tab(self):
         """Create the about tab"""
         tab = self.tabview.add("ℹ️ About")
@@ -725,6 +856,232 @@ MIT License
         except Exception as e:
             messagebox.showerror("Save Error", f"Error saving chart: {str(e)}")
     
+    def generate_reading(self):
+        """Generate astrology reading based on user input"""
+        try:
+            # Get birth data
+            birth_data = {
+                'name': self.reading_name.get(),
+                'date': self.reading_date.get(),
+                'time': self.reading_time.get(),
+                'timezone': self.reading_tz.get(),
+                'latitude': float(self.reading_lat.get()),
+                'longitude': float(self.reading_lon.get())
+            }
+            
+            # Get target date
+            target_date = self.target_date.get()
+            reading_type = self.reading_type.get()
+            
+            # Validate inputs
+            if not birth_data['date'] or not birth_data['time']:
+                messagebox.showerror("Input Error", "Please enter complete birth information")
+                return
+            
+            if not target_date:
+                messagebox.showerror("Input Error", "Please enter a target date for the reading")
+                return
+            
+            # Show loading message
+            self.readings_text.delete("1.0", tk.END)
+            self.readings_text.insert(tk.END, "🔮 Generating your astrology reading...\n\n")
+            self.readings_text.update()
+            
+            # Calculate natal chart
+            natal_chart = calculate_complete_chart(
+                birth_data['date'], birth_data['time'], birth_data['timezone'],
+                birth_data['latitude'], birth_data['longitude']
+            )
+            
+            # Generate reading based on type
+            if reading_type == "comprehensive":
+                reading = AstrologyReadings.generate_comprehensive_reading(natal_chart, target_date)
+                self.display_comprehensive_reading(birth_data, reading)
+            elif reading_type == "transits_only":
+                transits = AstrologyReadings.calculate_transits(natal_chart, target_date)
+                self.display_transits_reading(birth_data, transits, target_date)
+            elif reading_type == "horoscope_only":
+                horoscope = AstrologyReadings.generate_daily_horoscope(
+                    birth_data['date'], birth_data['time'], birth_data['timezone'],
+                    birth_data['latitude'], birth_data['longitude']
+                )
+                self.display_horoscope_reading(birth_data, horoscope)
+            
+            # Store current reading for saving
+            self.current_reading = {
+                'birth_data': birth_data,
+                'target_date': target_date,
+                'reading_type': reading_type,
+                'natal_chart': natal_chart
+            }
+            
+        except Exception as e:
+            messagebox.showerror("Reading Error", f"Error generating reading: {str(e)}")
+    
+    def display_comprehensive_reading(self, birth_data: dict, reading: dict):
+        """Display comprehensive astrology reading"""
+        self.readings_text.delete("1.0", tk.END)
+        
+        # Header
+        self.readings_text.insert(tk.END, f"🔮 Comprehensive Astrology Reading\n")
+        self.readings_text.insert(tk.END, f"{'='*50}\n\n")
+        
+        # Personal info
+        self.readings_text.insert(tk.END, f"👤 Person: {birth_data['name']}\n")
+        self.readings_text.insert(tk.END, f"📅 Birth Date: {birth_data['date']}\n")
+        self.readings_text.insert(tk.END, f"⏰ Birth Time: {birth_data['time']}\n")
+        self.readings_text.insert(tk.END, f"🌍 Location: {birth_data['latitude']:.2f}°, {birth_data['longitude']:.2f}°\n")
+        self.readings_text.insert(tk.END, f"🎯 Sun Sign: {reading['natal_info']['sun_sign']}\n")
+        self.readings_text.insert(tk.END, f"📊 Reading Date: {reading['target_date']}\n\n")
+        
+        # Daily horoscope
+        horoscope = reading['daily_horoscope']
+        self.readings_text.insert(tk.END, f"🌟 Daily Horoscope\n")
+        self.readings_text.insert(tk.END, f"{'-'*30}\n")
+        self.readings_text.insert(tk.END, f"☀️ Sun Sign: {horoscope['sun_sign']} ({horoscope['element']} Element)\n")
+        self.readings_text.insert(tk.END, f"👑 Ruler: {horoscope['ruler']}\n")
+        self.readings_text.insert(tk.END, f"⚡ Energy Level: {horoscope['energy_level']}\n")
+        self.readings_text.insert(tk.END, f"🌙 Lunar Phase: {horoscope['lunar_phase'].replace('_', ' ').title()}\n")
+        self.readings_text.insert(tk.END, f"💫 Daily Message: {horoscope['daily_message']}\n")
+        self.readings_text.insert(tk.END, f"🎯 Key Themes: {', '.join(horoscope['key_themes'])}\n")
+        self.readings_text.insert(tk.END, f"💡 Advice: {horoscope['advice']}\n\n")
+        
+        # Major transits
+        self.readings_text.insert(tk.END, f"🌌 Major Transits & Influences\n")
+        self.readings_text.insert(tk.END, f"{'-'*30}\n")
+        
+        if reading['key_influences']:
+            for i, transit in enumerate(reading['key_influences'], 1):
+                self.readings_text.insert(tk.END, f"{i}. {transit['interpretation']}\n")
+                self.readings_text.insert(tk.END, f"   Strength: {transit['strength']:.1%}\n\n")
+        else:
+            self.readings_text.insert(tk.END, "No major transits active. A relatively calm period.\n\n")
+        
+        # Overall theme
+        self.readings_text.insert(tk.END, f"🎭 Overall Theme\n")
+        self.readings_text.insert(tk.END, f"{'-'*30}\n")
+        self.readings_text.insert(tk.END, f"{reading['overall_theme']}\n\n")
+        
+        # Lucky areas and challenges
+        self.readings_text.insert(tk.END, f"🍀 Lucky Areas: {', '.join(horoscope['lucky_areas'])}\n")
+        self.readings_text.insert(tk.END, f"⚠️ Areas for Awareness: {', '.join(horoscope['challenges'])}\n")
+    
+    def display_transits_reading(self, birth_data: dict, transits: dict, target_date: str):
+        """Display transits-only reading"""
+        self.readings_text.delete("1.0", tk.END)
+        
+        # Header
+        self.readings_text.insert(tk.END, f"🌌 Transit Analysis\n")
+        self.readings_text.insert(tk.END, f"{'='*50}\n\n")
+        
+        # Personal info
+        self.readings_text.insert(tk.END, f"👤 Person: {birth_data['name']}\n")
+        self.readings_text.insert(tk.END, f"📅 Birth Date: {birth_data['date']}\n")
+        self.readings_text.insert(tk.END, f"📊 Transit Date: {target_date}\n\n")
+        
+        # Major transits
+        self.readings_text.insert(tk.END, f"🌟 Major Transits\n")
+        self.readings_text.insert(tk.END, f"{'-'*30}\n")
+        
+        if transits['major_transits']:
+            for i, transit in enumerate(transits['major_transits'], 1):
+                self.readings_text.insert(tk.END, f"{i}. {transit['interpretation']}\n")
+                self.readings_text.insert(tk.END, f"   Strength: {transit['strength']:.1%}\n\n")
+        else:
+            self.readings_text.insert(tk.END, "No major transits currently active.\n\n")
+        
+        # All transits
+        self.readings_text.insert(tk.END, f"📋 All Active Transits\n")
+        self.readings_text.insert(tk.END, f"{'-'*30}\n")
+        
+        if transits['aspects']:
+            for i, transit in enumerate(transits['aspects'][:10], 1):  # Top 10
+                self.readings_text.insert(tk.END, f"{i}. {transit['transiting_planet'].title()} {transit['aspect']} {transit['natal_planet'].title()}\n")
+                self.readings_text.insert(tk.END, f"   Orb: {transit['orb']:.1f}° | Strength: {transit['strength']:.1%}\n\n")
+        else:
+            self.readings_text.insert(tk.END, "No significant transits detected.\n")
+    
+    def display_horoscope_reading(self, birth_data: dict, horoscope: dict):
+        """Display horoscope-only reading"""
+        self.readings_text.delete("1.0", tk.END)
+        
+        # Header
+        self.readings_text.insert(tk.END, f"🌟 Daily Horoscope\n")
+        self.readings_text.insert(tk.END, f"{'='*50}\n\n")
+        
+        # Personal info
+        self.readings_text.insert(tk.END, f"👤 Person: {birth_data['name']}\n")
+        self.readings_text.insert(tk.END, f"📅 Birth Date: {birth_data['date']}\n")
+        self.readings_text.insert(tk.END, f"📊 Reading Date: {horoscope['date']}\n\n")
+        
+        # Horoscope details
+        self.readings_text.insert(tk.END, f"☀️ Sun Sign: {horoscope['sun_sign']} ({horoscope['element']} Element)\n")
+        self.readings_text.insert(tk.END, f"👑 Ruler: {horoscope['ruler']}\n")
+        self.readings_text.insert(tk.END, f"⚡ Energy Level: {horoscope['energy_level']}\n")
+        self.readings_text.insert(tk.END, f"🌙 Lunar Phase: {horoscope['lunar_phase'].replace('_', ' ').title()}\n\n")
+        
+        # Message and themes
+        self.readings_text.insert(tk.END, f"💫 Daily Message\n")
+        self.readings_text.insert(tk.END, f"{'-'*30}\n")
+        self.readings_text.insert(tk.END, f"{horoscope['daily_message']}\n\n")
+        
+        self.readings_text.insert(tk.END, f"🎯 Key Themes: {', '.join(horoscope['key_themes'])}\n\n")
+        
+        self.readings_text.insert(tk.END, f"💡 Guidance\n")
+        self.readings_text.insert(tk.END, f"{'-'*30}\n")
+        self.readings_text.insert(tk.END, f"{horoscope['advice']}\n\n")
+        
+        # Lucky areas and challenges
+        self.readings_text.insert(tk.END, f"🍀 Lucky Areas: {', '.join(horoscope['lucky_areas'])}\n")
+        self.readings_text.insert(tk.END, f"⚠️ Areas for Awareness: {', '.join(horoscope['challenges'])}\n")
+    
+    def save_reading(self):
+        """Save current reading to file"""
+        try:
+            if not hasattr(self, 'current_reading'):
+                messagebox.showwarning("No Reading", "Please generate a reading first")
+                return
+            
+            file_path = filedialog.asksaveasfilename(
+                defaultextension=".txt",
+                filetypes=[("Text files", "*.txt"), ("JSON files", "*.json"), ("All files", "*.*")]
+            )
+            
+            if not file_path:
+                return
+            
+            reading_data = self.current_reading
+            
+            if file_path.endswith('.json'):
+                # Save as JSON
+                with open(file_path, 'w', encoding='utf-8') as f:
+                    json.dump(reading_data, f, indent=2, default=str)
+            else:
+                # Save as formatted text
+                with open(file_path, 'w', encoding='utf-8') as f:
+                    f.write(f"🔮 Astrology Reading\n")
+                    f.write(f"Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
+                    f.write(f"{'='*50}\n\n")
+                    
+                    f.write(f"👤 Person: {reading_data['birth_data']['name']}\n")
+                    f.write(f"📅 Birth Date: {reading_data['birth_data']['date']}\n")
+                    f.write(f"📊 Reading Date: {reading_data['target_date']}\n")
+                    f.write(f"🎯 Reading Type: {reading_data['reading_type']}\n\n")
+                    
+                    # Add the text content from the display
+                    f.write(self.readings_text.get("1.0", tk.END))
+            
+            messagebox.showinfo("Success", f"Reading saved to {file_path}")
+            
+        except Exception as e:
+            messagebox.showerror("Save Error", f"Error saving reading: {str(e)}")
+    
+    def clear_readings(self):
+        """Clear the readings display"""
+        self.readings_text.delete("1.0", tk.END)
+        if hasattr(self, 'current_reading'):
+            delattr(self, 'current_reading')
+
     def run(self):
         """Start the GUI application"""
         self.root.mainloop()

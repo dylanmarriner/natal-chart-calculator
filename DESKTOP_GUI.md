@@ -2,16 +2,19 @@
 
 ## 🌟 Enhanced Natal Chart Calculator - Standalone Desktop Application
 
-A professional desktop application with Dylan's custom sci-fi theme, featuring natal chart calculations and synastry compatibility analysis.
+A professional desktop application with Dylan's custom sci-fi theme, featuring natal chart calculations, synastry compatibility analysis, and comprehensive astrology readings with daily horoscopes.
 
 ### ✨ Features
 
 - **🪐 Single Natal Chart**: Complete astrological calculations with multiple house systems
 - **💕 Compatibility Calculator**: Synastry analysis between two birth charts
+- **🔮 Astrology Readings**: Daily horoscopes, transit analysis, and lunar phase interpretations
 - **🎨 Sci-fi Theme**: Dylan's custom holographic UI with stunning visual effects
-- **📊 Multiple Outputs**: Save charts as JSON, CSV, or formatted text
+- **📊 Multiple Outputs**: Save charts and readings in JSON, CSV, or formatted text
 - **⚡ Real-time Calculations**: Fast, accurate Swiss Ephemeris integration
 - **🔮 Pattern Detection**: Advanced aspect pattern analysis (T-squares, Grand Trines, etc.)
+- **🌌 Transit Analysis**: Personalized daily insights based on current planetary positions
+- **🌙 Lunar Guidance**: Current moon phase interpretations and timing advice
 
 ### 📋 System Requirements
 
@@ -96,6 +99,22 @@ python desktop_gui.py
 2. **Person 2**: Enter second person's complete birth information  
 3. **Calculate**: Click "💕 Calculate Compatibility" for synastry analysis
 4. **Results**: View compatibility score, key aspects, and relationship themes
+
+#### Astrology Readings & Daily Horoscopes
+
+1. **Birth Information**: Enter your complete birth data for personalized readings
+2. **Target Date**: Select the date for your reading (defaults to today)
+3. **Reading Type**: Choose from:
+   - **Comprehensive**: Daily horoscope + transit analysis + lunar guidance
+   - **Transits Only**: Focus on current planetary influences and aspects
+   - **Horoscope Only**: Sun sign-based daily guidance and themes
+4. **Generate**: Click "🔮 Generate Astrology Reading" for personalized insights
+5. **Results**: View detailed analysis including:
+   - Sun sign information and energy levels
+   - Current lunar phase and timing advice
+   - Major transits and their influences
+   - Daily themes and guidance
+   - Lucky areas and challenges to watch
 
 ### 🎨 Theme Customization
 

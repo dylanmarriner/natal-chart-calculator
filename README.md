@@ -6,6 +6,7 @@ A professional natal chart calculator with **both command-line and desktop GUI i
 
 - **🖥️ Desktop GUI**: Standalone application with Dylan's custom sci-fi theme
 - **💕 Compatibility Calculator**: Synastry analysis between two birth charts
+- **🔮 Astrology Readings**: Daily horoscopes, transit analysis, and lunar phase interpretations
 - **🪐 Complete Planetary Calculations**: Sun, Moon, planets, North/South Nodes, Chiron, Part of Fortune
 - **🏠 Multiple House Systems**: Placidus, Whole Sign, Equal, Koch, Campanus
 - **🔮 Advanced Pattern Detection**: T-squares, Grand Trines, Yods, Stelliums
@@ -13,6 +14,8 @@ A professional natal chart calculator with **both command-line and desktop GUI i
 - **📊 Multiple Output Formats**: JSON, CSV, formatted text
 - **🎯 Batch Processing**: Handle multiple charts from CSV files
 - **🎨 Sci-fi Theme**: Stunning holographic UI in desktop version
+- **🌌 Transit Analysis**: Personalized daily insights based on current planetary positions
+- **🌙 Lunar Guidance**: Current moon phase interpretations and timing advice
 
 ## 🚀 Quick Start
 
