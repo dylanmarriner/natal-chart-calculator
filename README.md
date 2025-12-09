@@ -28,12 +28,26 @@ A comprehensive astrological natal chart calculator with advanced features inclu
 pip install skyfield pytz swisseph
 ```
 
-### Optional: Chiron and Asteroid Support
-For Chiron calculations, download Swiss Ephemeris asteroid files:
-1. Visit [astro.com swisseph download](https://www.astro.com/ftp/swisseph/ephe/)
-2. Download `seas_18.se1` (asteroid ephemeris)
-3. Place in `/usr/share/swisseph/` or `/usr/local/share/swisseph/`
-4. Or set custom path with `swe.set_ephe_path('/your/path')`
+### ⚠️ Important: Swiss Ephemeris Setup
+
+**Chiron calculations require Swiss Ephemeris files:**
+
+```bash
+# Ubuntu/Debian
+sudo apt update && sudo apt install swe-basic-data
+
+# macOS (Homebrew)  
+brew install swisseph
+
+# Other systems: Download from https://www.astro.com/ftp/swisseph/ephe/
+```
+
+Without these files, you'll see:
+```
+⚠️ Could not calculate Chiron (missing asteroid ephemeris files)
+```
+
+**All other features work without this dependency.**
 
 ## Usage
 
