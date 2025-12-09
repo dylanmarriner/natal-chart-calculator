@@ -1,12 +1,12 @@
 /**
- * Beast Theme - Visual Style System
+ * Dylan Custom Sci-fi Theme - Visual Style System
  * 
  * Extracted from NEW-UI-THEME-INTEGRATE-ALL.tsx
  * Pixel-perfect visual tokens for holographic UI components
  * 
  * @description Complete theme definition preserving exact visual appearance
  * @version 1.0.0
- * @author Beast UI System
+ * @author Dylan Marriner UI System
  */
 
 // ------------------------------------------------------------------
@@ -1035,7 +1035,7 @@ export const components = {
 };
 // MAIN THEME EXPORT
 // ------------------------------------------------------------------
-export const beastTheme = {
+export const DylanCustom = {
   colors,
   glow,
   gradients,
@@ -1051,4 +1051,4 @@ export const beastTheme = {
 };
 
 // Default export
-export default beastTheme;
+export default DylanCustomTheme;

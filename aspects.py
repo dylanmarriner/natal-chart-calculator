@@ -7,7 +7,11 @@ Includes aspect analysis, pattern detection (T-squares, Grand Trines, Yods),
 and aspect strength scoring.
 """
 
+import logging
 from calculations import normalize_angle
+
+# Configure logging
+logger = logging.getLogger(__name__)
 
 ASPECTS = {
     "conjunction": 0,
@@ -33,10 +37,18 @@ ASPECT_ORBS = {
 
 def angle_difference(a, b):
     """Calculate the smallest angular distance between two points."""
-    diff = abs(a - b) % 360
-    if diff > 180:
-        diff = 360 - diff
-    return diff
+    try:
+        if not isinstance(a, (int, float)) or not isinstance(b, (int, float)):
+            raise ValueError("Both angles must be numeric")
+        
+        diff = abs(a - b) % 360
+        if diff > 180:
+            diff = 360 - diff
+        return diff
+        
+    except Exception as e:
+        logger.error(f"Error calculating angle difference between {a} and {b}: {e}")
+        raise
 
 def compute_aspects(bodies, aspect_orbs=None, include_points=None):
     """
@@ -50,36 +62,73 @@ def compute_aspects(bodies, aspect_orbs=None, include_points=None):
     Returns:
         list: List of aspect dictionaries
     """
-    if aspect_orbs is None:
-        aspect_orbs = ASPECT_ORBS
+    try:
+        if not bodies or not isinstance(bodies, dict):
+            raise ValueError("Bodies must be a non-empty dictionary")
         
-    aspects = []
-    names = list(bodies.keys())
-    
-    # Filter bodies if specific points requested
-    if include_points:
-        names = [name for name in names if name in include_points]
-    
-    for i in range(len(names)):
-        for j in range(i+1, len(names)):
-            n1 = names[i]
-            n2 = names[j]
-            lon1 = bodies[n1]["ecliptic_longitude_deg"]
-            lon2 = bodies[n2]["ecliptic_longitude_deg"]
-            diff = angle_difference(lon1, lon2)
-            
-            for asp, angle in ASPECTS.items():
-                orb = aspect_orbs.get(asp, 5)
-                if abs(diff - angle) <= orb:
-                    aspects.append({
-                        "between": [n1, n2],
-                        "aspect": asp,
-                        "angle": diff,
-                        "orb": abs(diff - angle),
-                        "strength": calculate_aspect_strength(abs(diff - angle), orb, asp)
-                    })
-                    break
-    return aspects
+        if aspect_orbs is None:
+            aspect_orbs = ASPECT_ORBS
+        elif not isinstance(aspect_orbs, dict):
+            raise ValueError("Aspect orbs must be a dictionary")
+        
+        aspects = []
+        names = list(bodies.keys())
+        
+        # Validate that all bodies have required position data
+        for name in names:
+            if name not in bodies or "ecliptic_longitude_deg" not in bodies[name]:
+                raise ValueError(f"Body '{name}' missing ecliptic_longitude_deg data")
+        
+        # Filter bodies if specific points requested
+        if include_points:
+            if not isinstance(include_points, list):
+                raise ValueError("include_points must be a list")
+            names = [name for name in names if name in include_points]
+        
+        if len(names) < 2:
+            logger.warning("Less than 2 bodies available for aspect calculation")
+            return aspects
+        
+        for i in range(len(names)):
+            for j in range(i+1, len(names)):
+                try:
+                    n1 = names[i]
+                    n2 = names[j]
+                    lon1 = bodies[n1]["ecliptic_longitude_deg"]
+                    lon2 = bodies[n2]["ecliptic_longitude_deg"]
+                    
+                    if not isinstance(lon1, (int, float)) or not isinstance(lon2, (int, float)):
+                        logger.warning(f"Invalid longitude values for {n1} or {n2}")
+                        continue
+                    
+                    diff = angle_difference(lon1, lon2)
+                    
+                    for asp, angle in ASPECTS.items():
+                        orb = aspect_orbs.get(asp, 5)
+                        if abs(diff - angle) <= orb:
+                            try:
+                                strength = calculate_aspect_strength(abs(diff - angle), orb, asp)
+                                aspects.append({
+                                    "between": [n1, n2],
+                                    "aspect": asp,
+                                    "angle": diff,
+                                    "orb": abs(diff - angle),
+                                    "strength": strength
+                                })
+                            except Exception as e:
+                                logger.warning(f"Error calculating strength for {asp} between {n1} and {n2}: {e}")
+                                continue
+                            break
+                except Exception as e:
+                    logger.warning(f"Error processing aspect between {names[i]} and {names[j]}: {e}")
+                    continue
+        
+        logger.info(f"Successfully calculated {len(aspects)} aspects")
+        return aspects
+        
+    except Exception as e:
+        logger.error(f"Critical error in compute_aspects: {e}")
+        raise
 
 def calculate_aspect_strength(actual_orb, max_orb, aspect_type):
     """
@@ -93,6 +142,19 @@ def calculate_aspect_strength(actual_orb, max_orb, aspect_type):
     Returns:
         float: Strength score (0-1)
     """
+    # Input validation - raise exceptions for invalid inputs
+    if not all(isinstance(val, (int, float)) for val in [actual_orb, max_orb]):
+        raise ValueError("Orb values must be numeric")
+    
+    if not isinstance(aspect_type, str):
+        raise ValueError("Aspect type must be a string")
+    
+    if max_orb <= 0:
+        raise ValueError("Max orb must be positive")
+    
+    if actual_orb < 0:
+        actual_orb = abs(actual_orb)
+    
     # Base strength from orb tightness
     orb_strength = 1 - (actual_orb / max_orb)
     
@@ -110,7 +172,15 @@ def calculate_aspect_strength(actual_orb, max_orb, aspect_type):
     
     aspect_weight = aspect_weights.get(aspect_type, 0.5)
     
-    return round(orb_strength * aspect_weight, 3)
+    strength = orb_strength * aspect_weight
+    
+    # Ensure strength is within valid range
+    if strength < 0:
+        strength = 0
+    elif strength > 1:
+        strength = 1
+    
+    return round(strength, 3)
 
 def detect_aspect_patterns(aspects, bodies):
     """
@@ -123,38 +193,96 @@ def detect_aspect_patterns(aspects, bodies):
     Returns:
         dict: Dictionary of detected patterns
     """
-    patterns = {
-        "t_squares": [],
-        "grand_trines": [],
-        "grand_crosses": [],
-        "yods": [],
-        "stelliums": []
-    }
-    
-    # Get all aspect relationships for pattern detection
-    aspect_graph = build_aspect_graph(aspects)
-    
-    patterns["t_squares"] = detect_t_squares(aspect_graph, bodies)
-    patterns["grand_trines"] = detect_grand_trines(aspect_graph, bodies)
-    patterns["grand_crosses"] = detect_grand_crosses(aspect_graph, bodies)
-    patterns["yods"] = detect_yods(aspect_graph, bodies)
-    patterns["stelliums"] = detect_stelliums(bodies)
-    
-    return patterns
+    try:
+        if not aspects or not isinstance(aspects, list):
+            raise ValueError("Aspects must be a non-empty list")
+        
+        if not bodies or not isinstance(bodies, dict):
+            raise ValueError("Bodies must be a non-empty dictionary")
+        
+        patterns = {
+            "t_squares": [],
+            "grand_trines": [],
+            "grand_crosses": [],
+            "yods": [],
+            "stelliums": []
+        }
+        
+        # Get all aspect relationships for pattern detection
+        try:
+            aspect_graph = build_aspect_graph(aspects)
+        except Exception as e:
+            logger.warning(f"Error building aspect graph: {e}")
+            aspect_graph = {}
+        
+        try:
+            patterns["t_squares"] = detect_t_squares(aspect_graph, bodies)
+        except Exception as e:
+            logger.warning(f"Error detecting T-squares: {e}")
+        
+        try:
+            patterns["grand_trines"] = detect_grand_trines(aspect_graph, bodies)
+        except Exception as e:
+            logger.warning(f"Error detecting Grand Trines: {e}")
+        
+        try:
+            patterns["grand_crosses"] = detect_grand_crosses(aspect_graph, bodies)
+        except Exception as e:
+            logger.warning(f"Error detecting Grand Crosses: {e}")
+        
+        try:
+            patterns["yods"] = detect_yods(aspect_graph, bodies)
+        except Exception as e:
+            logger.warning(f"Error detecting Yods: {e}")
+        
+        try:
+            patterns["stelliums"] = detect_stelliums(bodies)
+        except Exception as e:
+            logger.warning(f"Error detecting Stelliums: {e}")
+        
+        total_patterns = sum(len(patterns[key]) for key in patterns)
+        logger.info(f"Successfully detected {total_patterns} aspect patterns")
+        return patterns
+        
+    except Exception as e:
+        logger.error(f"Critical error in detect_aspect_patterns: {e}")
+        # Return empty patterns on error
+        return {"t_squares": [], "grand_trines": [], "grand_crosses": [], "yods": [], "stelliums": []}
 
 def build_aspect_graph(aspects):
     """Build a graph representation of aspects for pattern detection."""
-    graph = {}
-    for aspect in aspects:
-        if aspect["aspect"] in ["square", "trine", "opposition", "quincunx", "conjunction"]:
-            body1, body2 = aspect["between"]
-            if body1 not in graph:
-                graph[body1] = []
-            if body2 not in graph:
-                graph[body2] = []
-            graph[body1].append({"to": body2, "aspect": aspect["aspect"]})
-            graph[body2].append({"to": body1, "aspect": aspect["aspect"]})
-    return graph
+    try:
+        if not aspects or not isinstance(aspects, list):
+            return {}
+        
+        graph = {}
+        for aspect in aspects:
+            try:
+                if "aspect" not in aspect or "between" not in aspect:
+                    continue
+                
+                if aspect["aspect"] in ["square", "trine", "opposition", "quincunx", "conjunction"]:
+                    body1, body2 = aspect["between"]
+                    
+                    if not isinstance(body1, str) or not isinstance(body2, str):
+                        continue
+                    
+                    if body1 not in graph:
+                        graph[body1] = []
+                    if body2 not in graph:
+                        graph[body2] = []
+                    
+                    graph[body1].append({"to": body2, "aspect": aspect["aspect"]})
+                    graph[body2].append({"to": body1, "aspect": aspect["aspect"]})
+            except Exception as e:
+                logger.warning(f"Error processing aspect in graph building: {e}")
+                continue
+        
+        return graph
+        
+    except Exception as e:
+        logger.error(f"Error building aspect graph: {e}")
+        return {}
 
 def detect_t_squares(graph, bodies):
     """Detect T-square patterns (two squares with an opposition)."""

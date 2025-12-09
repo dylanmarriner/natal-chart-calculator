@@ -203,24 +203,29 @@ class AstrologyReadings:
             from natal_chart_enhanced import calculate_complete_chart
             chart = calculate_complete_chart(date, time, timezone, latitude, longitude)
             return chart['bodies']['sun']['sign'].lower()
-        except:
-            # Fallback to simple zodiac calculation
-            month_day = datetime.strptime(date, "%Y-%m-%d").strftime("%m-%d")
-            zodiac_dates = [
-                ("03-21", "04-19", "aries"), ("04-20", "05-20", "taurus"),
-                ("05-21", "06-20", "gemini"), ("06-21", "07-22", "cancer"),
-                ("07-23", "08-22", "leo"), ("08-23", "09-22", "virgo"),
-                ("09-23", "10-22", "libra"), ("10-23", "11-21", "scorpio"),
-                ("11-22", "12-21", "sagittarius"), ("12-22", "01-19", "capricorn"),
-                ("01-20", "02-18", "aquarius"), ("02-19", "03-20", "pisces")
-            ]
-            
-            for start, end, sign in zodiac_dates:
-                if start == "12-22" and month_day >= start or month_day <= end:
-                    return sign
-                elif start <= month_day <= end:
-                    return sign
-            return "aries"
+        except Exception as e:
+            # Fallback to simple zodiac calculation with proper error handling
+            try:
+                month_day = datetime.strptime(date, "%Y-%m-%d").strftime("%m-%d")
+                zodiac_dates = [
+                    ("03-21", "04-19", "aries"), ("04-20", "05-20", "taurus"),
+                    ("05-21", "06-20", "gemini"), ("06-21", "07-22", "cancer"),
+                    ("07-23", "08-22", "leo"), ("08-23", "09-22", "virgo"),
+                    ("09-23", "10-22", "libra"), ("10-23", "11-21", "scorpio"),
+                    ("11-22", "12-21", "sagittarius"), ("12-22", "01-19", "capricorn"),
+                    ("01-20", "02-18", "aquarius"), ("02-19", "03-20", "pisces")
+                ]
+                
+                for start, end, sign in zodiac_dates:
+                    if start == "12-22" and month_day >= start or month_day <= end:
+                        return sign
+                    elif start <= month_day <= end:
+                        return sign
+                
+                return "aries"  # Default fallback
+            except Exception as fallback_error:
+                # If even the fallback fails, return a default
+                return "aries"
     
     @staticmethod
     def calculate_transits(natal_chart: dict, target_date: str = None) -> dict:

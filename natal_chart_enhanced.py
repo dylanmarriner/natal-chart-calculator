@@ -309,10 +309,14 @@ def calculate_complete_chart(birth_date, birth_time, timezone_name, latitude, lo
     eph = load('de421.bsp')
     
     # Parse birth data and create observer
-    birth_utc = parse_birth_data(birth_date, birth_time, timezone_name)
-    year, month, day, hour, minute, second = birth_utc.year, birth_utc.month, birth_utc.day, birth_utc.hour, birth_utc.minute, birth_utc.second
-    t = ts.utc(year, month, day, hour, minute, second)
-    observer = create_observer(eph, latitude, longitude)
+    try:
+        birth_datetime, timezone_str = parse_birth_data(birth_date, birth_time, timezone_name)
+        year, month, day, hour, minute, second = birth_datetime.year, birth_datetime.month, birth_datetime.day, birth_datetime.hour, birth_datetime.minute, birth_datetime.second
+        t = ts.utc(year, month, day, hour, minute, second)
+        observer = create_observer(eph, latitude, longitude)
+    except Exception as e:
+        logger.error(f"Error parsing birth data or creating observer: {e}")
+        raise
     
     # Calculate planetary positions
     planets = get_planet_longitudes(ts, eph, observer, t)
@@ -365,7 +369,7 @@ def calculate_complete_chart(birth_date, birth_time, timezone_name, latitude, lo
         "house_system": get_house_system_description(house_system),
         "house_system_code": house_system,
         "calculation_method": "Enhanced: Skyfield + Swiss Ephemeris + Pattern Detection",
-        "generated_utc": birth_utc.isoformat()
+        "generated_utc": birth_datetime.isoformat()
     }
     
     return chart

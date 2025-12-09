@@ -36,7 +36,10 @@ gui_env/
 .DS_Store
 Thumbs.db
 
-# Chart output files
+# Chart output files (keep examples, ignore generated)
+charts/
+output/
+test_output/
 *.json
 *.csv
 *.txt
@@ -47,3 +50,29 @@ Thumbs.db
 # Swiss Ephemeris files (if downloaded locally)
 *.se1
 *.se2
+*.bsp
+de421.bsp
+de422.bsp
+de431.bsp
+
+# Project-specific databases
+astrology_data.db
+*.db
+*.sqlite
+*.sqlite3
+
+# Build artifacts
+NatalChartCalculator_Release/
+build/
+dist/
+
+# Test files
+test_charts/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Logs
+*.log
+*.tmp
+*.temp
