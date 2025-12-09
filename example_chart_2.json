@@ -1,0 +1,143 @@
+{
+  "birth_info": {
+    "name": "Example Person B",
+    "date": "1992-08-22",
+    "time": "09:15",
+    "location": "Los Angeles, CA",
+    "latitude": 34.0522,
+    "longitude": -118.2437,
+    "timezone": "America/Los_Angeles"
+  },
+  "bodies": {
+    "sun": {
+      "ecliptic_longitude_deg": 150.3,
+      "sign": "Virgo",
+      "house": 6
+    },
+    "moon": {
+      "ecliptic_longitude_deg": 285.7,
+      "sign": "Capricorn",
+      "house": 10
+    },
+    "mercury": {
+      "ecliptic_longitude_deg": 165.8,
+      "sign": "Virgo",
+      "house": 6
+    },
+    "venus": {
+      "ecliptic_longitude_deg": 195.4,
+      "sign": "Libra",
+      "house": 7
+    },
+    "mars": {
+      "ecliptic_longitude_deg": 45.9,
+      "sign": "Taurus",
+      "house": 2
+    },
+    "jupiter": {
+      "ecliptic_longitude_deg": 210.2,
+      "sign": "Scorpio",
+      "house": 8
+    },
+    "saturn": {
+      "ecliptic_longitude_deg": 315.6,
+      "sign": "Aquarius",
+      "house": 11
+    },
+    "uranus": {
+      "ecliptic_longitude_deg": 275.1,
+      "sign": "Capricorn",
+      "house": 10
+    },
+    "neptune": {
+      "ecliptic_longitude_deg": 288.9,
+      "sign": "Capricorn",
+      "house": 10
+    },
+    "pluto": {
+      "ecliptic_longitude_deg": 235.7,
+      "sign": "Scorpio",
+      "house": 8
+    },
+    "north_node": {
+      "ecliptic_longitude_deg": 90.4,
+      "sign": "Cancer",
+      "house": 4
+    },
+    "south_node": {
+      "ecliptic_longitude_deg": 270.4,
+      "sign": "Capricorn",
+      "house": 10
+    },
+    "chiron": {
+      "ecliptic_longitude_deg": 125.8,
+      "sign": "Leo",
+      "house": 5
+    },
+    "part_of_fortune": {
+      "ecliptic_longitude_deg": 75.3,
+      "sign": "Gemini",
+      "house": 3
+    },
+    "ascendant": {
+      "ecliptic_longitude_deg": 120.5,
+      "sign": "Leo",
+      "house": 1
+    },
+    "midheaven": {
+      "ecliptic_longitude_deg": 45.2,
+      "sign": "Taurus",
+      "house": 10
+    }
+  },
+  "houses": {
+    "house_1": {
+      "ecliptic_longitude_deg": 120.5,
+      "sign": "Leo"
+    },
+    "house_2": {
+      "ecliptic_longitude_deg": 150.1,
+      "sign": "Virgo"
+    },
+    "house_3": {
+      "ecliptic_longitude_deg": 179.7,
+      "sign": "Libra"
+    },
+    "house_4": {
+      "ecliptic_longitude_deg": 209.3,
+      "sign": "Scorpio"
+    },
+    "house_5": {
+      "ecliptic_longitude_deg": 238.9,
+      "sign": "Sagittarius"
+    },
+    "house_6": {
+      "ecliptic_longitude_deg": 268.5,
+      "sign": "Capricorn"
+    },
+    "house_7": {
+      "ecliptic_longitude_deg": 298.1,
+      "sign": "Aquarius"
+    },
+    "house_8": {
+      "ecliptic_longitude_deg": 327.7,
+      "sign": "Pisces"
+    },
+    "house_9": {
+      "ecliptic_longitude_deg": 357.3,
+      "sign": "Pisces"
+    },
+    "house_10": {
+      "ecliptic_longitude_deg": 26.9,
+      "sign": "Aries"
+    },
+    "house_11": {
+      "ecliptic_longitude_deg": 56.5,
+      "sign": "Taurus"
+    },
+    "house_12": {
+      "ecliptic_longitude_deg": 86.1,
+      "sign": "Gemini"
+    }
+  }
+}

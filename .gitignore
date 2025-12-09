@@ -36,11 +36,22 @@ gui_env/
 .DS_Store
 Thumbs.db
 
-# Chart output files (keep examples, ignore generated)
+# Personal chart data and reports (KEEP examples only)
+*_chart.json
+!example_chart_*.json
+*_Natal_Chart_*.md
+*_Compatibility_*.md
+!example_compatibility_report.md
+personal_*.json
+*_Personal_*.json
+*_report.md
+*_analysis.md
+*_reading.md
+
+# Generated output files
 charts/
 output/
 test_output/
-*.json
 *.csv
 *.txt
 
@@ -64,7 +75,6 @@ astrology_data.db
 # Build artifacts
 NatalChartCalculator_Release/
 build/
-dist/
 
 # Test files
 test_charts/
@@ -72,7 +82,8 @@ test_charts/
 .coverage
 htmlcov/
 
-# Logs
+# Logs and temporary files
 *.log
 *.tmp
 *.temp
+*~
