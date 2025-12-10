@@ -1,6 +1,4 @@
-# 🔮 Enhanced Relationship Compatibility Calculator
-
-An advanced astrological compatibility analysis tool that goes beyond basic aspects to provide deep insights into relationship dynamics, destiny indicators, and spiritual connections.
+.
 
 ## ✨ Features
 
